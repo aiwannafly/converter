@@ -3,6 +3,7 @@ import lombok.*;
 import java.util.*;
 
 public class Converter {
+
     public static Collection<TreeDTO> convertWithMemory(Collection<TreeEntity> entities) {
         Collection<TreeDTO> rootNodes = new ArrayList<>();
         Map<Integer, TreeDTO> dtoMap = new HashMap<>();
@@ -25,6 +26,7 @@ public class Converter {
         int totalCount = entities.size();
         int convertedCount = 0;
         while (convertedCount < totalCount) {
+            int current = convertedCount;
             for (TreeEntity entity : entities) {
                 if (entity.parentId == null) {
                     rootNodes.add(new TreeDTO(entity.id, entity.name));
@@ -35,6 +37,9 @@ public class Converter {
                 if (inserted) {
                     convertedCount++;
                 }
+            }
+            if (current == convertedCount) {
+                throw new IllegalArgumentException("One or more nodes have not existing parend id");
             }
         }
         return rootNodes;
@@ -73,7 +78,7 @@ public class Converter {
         List<TreeDTO> rootNodes = new ArrayList<>();
         int parentIdx = 0;
         List<TreeDTO> currLevel = new ArrayList<>();
-        List<TreeDTO> parentLevel = currLevel;
+        List<TreeDTO> parentLevel = new ArrayList<>();
         final String errorMessage = "Tree nodes are not placed in the proper way";
         for (TreeEntity entity : entities) {
             var entityDto = new TreeDTO(entity.id, entity.name);
